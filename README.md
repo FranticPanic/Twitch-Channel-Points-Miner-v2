@@ -14,7 +14,7 @@ This project is not affiliated with Twitch. Use it at your own risk and make sur
 ## Quick Start
 
 ```sh
-git clone https://github.com/Armi1014/Twitch-Channel-Points-Miner-v2
+git clone https://github.com/FranticPanic/Twitch-Channel-Points-Miner-v2
 cd Twitch-Channel-Points-Miner-v2
 cp example.py run.py
 uv sync
@@ -34,14 +34,15 @@ cp example.py run.py
 mkdir -p cookies logs analytics
 ```
 
-Edit `run.py`, then build and start the miner:
+Edit `run.py`, then pull the published image and start the miner:
 
 ```sh
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose logs -f miner
 ```
 
-`run.py` is ignored by Git and mounted read-only into the container. Keep it private if it contains a password. Login cookies, logs, reports, and analytics survive container rebuilds in their matching host directories.
+Compose pulls `ghcr.io/franticpanic/twitch-channel-points-miner-v2:latest`, which supports Linux AMD64 and ARM64 hosts. `run.py` is ignored by Git and mounted read-only into the container. Keep it private if it contains a password. Login cookies, logs, reports, and analytics survive image updates in their matching host directories.
 
 If the first login needs an interactive prompt, run `docker compose run --rm miner`; after login succeeds and the cookie is saved, start the normal background service with `docker compose up -d`.
 
@@ -50,6 +51,8 @@ Stop the service with `docker compose down`. This leaves the persistent host dir
 ## Monthly Upstream Updates
 
 The `Sync from upstream` GitHub Actions workflow runs on the first day of every month at 06:17 UTC. It uses GitHub's fork-sync API to merge the upstream `Armi1014/Twitch-Channel-Points-Miner-v2` default branch into this fork's `master` branch. A merge conflict makes the workflow fail instead of overwriting fork-specific changes.
+
+Every push to `master`, including a successful monthly sync, publishes updated AMD64 and ARM64 images to GitHub Container Registry with both `latest` and commit-specific tags.
 
 GitHub disables scheduled workflows by default on new public forks. Enable the workflow from the fork's Actions tab after the first push.
 

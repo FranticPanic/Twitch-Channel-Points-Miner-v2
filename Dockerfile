@@ -2,6 +2,10 @@ FROM python:3.10-bullseye
 
 ARG BUILDX_QEMU_ENV
 
+LABEL org.opencontainers.image.source="https://github.com/FranticPanic/Twitch-Channel-Points-Miner-v2" \
+      org.opencontainers.image.description="Docker image for the Twitch Channel Points Miner Armi1014 fork" \
+      org.opencontainers.image.licenses="GPL-3.0-or-later"
+
 ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \

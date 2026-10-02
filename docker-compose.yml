@@ -1,7 +1,7 @@
 services:
   miner:
-    build:
-      context: .
+    image: ghcr.io/franticpanic/twitch-channel-points-miner-v2:latest
+    pull_policy: always
     restart: unless-stopped
     init: true
     stdin_open: true
