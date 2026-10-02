@@ -2,43 +2,48 @@ FROM python:3.10-bullseye
 
 ARG BUILDX_QEMU_ENV
 
+ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /usr/src/app
 
-COPY ./requirements.txt ./
-COPY ./setup.py ./
+COPY requirements.txt pyproject.toml setup.py README.md ./
+COPY TwitchChannelPointsMiner ./TwitchChannelPointsMiner
 
-ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -qq -y --fix-missing --no-install-recommends \
+        automake \
+        cmake \
+        g++ \
+        gcc \
+        libblas-dev \
+        libffi-dev \
+        libjpeg-dev \
+        liblapack-dev \
+        libssl-dev \
+        make \
+        ninja-build \
+        python3-dev \
+        rustc \
+        subversion \
+        zlib1g-dev \
+    && if [ "${BUILDX_QEMU_ENV}" = "true" ] && [ "$(getconf LONG_BIT)" = "32" ]; then \
+        pip install --upgrade cryptography==3.3.2; \
+       fi \
+    && pip install --upgrade pip \
+    && pip install -r requirements.txt \
+    && apt-get remove -y gcc rustc \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /usr/share/doc/*
 
-RUN pip install --upgrade pip
+# The image is runnable on its own. Compose replaces this starter configuration
+# with the user's ignored run.py through a read-only bind mount.
+COPY example.py ./run.py
 
-RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -qq -y --fix-missing --no-install-recommends \
-    gcc \
-    libffi-dev \
-    rustc \
-    zlib1g-dev \
-    libjpeg-dev \
-    libssl-dev \
-    libblas-dev \
-    liblapack-dev \
-    make \
-    cmake \    
-    automake \
-    ninja-build \
-    g++ \
-    subversion \
-    python3-dev \
-  && if [ "${BUILDX_QEMU_ENV}" = "true" ] && [ "$(getconf LONG_BIT)" = "32" ]; then \
-        pip install -U cryptography==3.3.2; \
-     fi \
-  && pip install -r requirements.txt \
-  && pip cache purge \
-  && apt-get remove -y gcc rustc \
-  && apt-get autoremove -y \
-  && apt-get autoclean -y \
-  && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/* \
-  && rm -rf /usr/share/doc/*
+RUN mkdir -p analytics cookies logs
 
-ADD ./TwitchChannelPointsMiner ./TwitchChannelPointsMiner
-ENTRYPOINT [ "python", "run.py" ]
+ENTRYPOINT ["python", "run.py"]

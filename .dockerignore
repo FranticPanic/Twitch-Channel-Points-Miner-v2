@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.pytest_cache
+.venv
+.vscode
+__pycache__
+*.py[cod]
+analytics
+cookies
+htmls
+logs
+run.py
+screenshots
+tests

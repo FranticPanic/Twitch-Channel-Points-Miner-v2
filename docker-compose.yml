@@ -1,0 +1,14 @@
+services:
+  miner:
+    build:
+      context: .
+    restart: unless-stopped
+    init: true
+    stdin_open: true
+    tty: true
+    stop_grace_period: 30s
+    volumes:
+      - ./run.py:/usr/src/app/run.py:ro
+      - ./cookies:/usr/src/app/cookies
+      - ./logs:/usr/src/app/logs
+      - ./analytics:/usr/src/app/analytics

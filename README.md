@@ -25,6 +25,34 @@ Edit `run.py` before the first real run. Most users only need to set `USERNAME`,
 
 Hermes is the default websocket backend. To force the legacy PubSub transport, set `USE_HERMES = False` in `run.py`.
 
+## Docker Compose
+
+Create the local configuration and persistent-data directories once:
+
+```sh
+cp example.py run.py
+mkdir -p cookies logs analytics
+```
+
+Edit `run.py`, then build and start the miner:
+
+```sh
+docker compose up -d --build
+docker compose logs -f miner
+```
+
+`run.py` is ignored by Git and mounted read-only into the container. Keep it private if it contains a password. Login cookies, logs, reports, and analytics survive container rebuilds in their matching host directories.
+
+If the first login needs an interactive prompt, run `docker compose run --rm miner`; after login succeeds and the cookie is saved, start the normal background service with `docker compose up -d`.
+
+Stop the service with `docker compose down`. This leaves the persistent host directories intact.
+
+## Monthly Upstream Updates
+
+The `Sync from upstream` GitHub Actions workflow runs on the first day of every month at 06:17 UTC. It uses GitHub's fork-sync API to merge the upstream `Armi1014/Twitch-Channel-Points-Miner-v2` default branch into this fork's `master` branch. A merge conflict makes the workflow fail instead of overwriting fork-specific changes.
+
+GitHub disables scheduled workflows by default on new public forks. Enable the workflow from the fork's Actions tab after the first push.
+
 ## Pip Fallback
 
 ```sh
